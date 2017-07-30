@@ -1,0 +1,57 @@
+renderTicker--;
+	// if (renderTicker<=0) {
+	// 	renderTicker=100;
+	// } else {
+	// 	return;
+	// }
+
+	// if (waterStep) {
+// 		let cW=gameCanvasBG.width;
+// 		let cH=gameCanvasBG.height;
+// 		imgData = ctxBG.getImageData(0,0,cW,cH);
+// 		data = imgData.data;
+
+// 		// enumerate all pixels
+// 		// each pixel's r,g,b,a datum are stored in separate sequential array elements
+// 		loop1:	
+// 		for(var i=0; i<cW; i++) {
+
+// 			loop2:
+// 			for (var j= 0 ;j<cH;j++) {
+// 				//console.log(data[(j*cH+i)*4+1]);
+// 				// let curX = i+cW*j;
+// 				// let curY = 
+// 				let curPos = i+cW*j;
+// 				//console.log(data[(curPos)*4+1])
+// 				if (data[(curPos)*4+3]>0) {
+// 					//data[+i+cH*j)*4] = 255;
+// 					//data[(curPos)*4]   = Math.min(255,data[(curPos)*4]+100);
+// 					data[(curPos)*4+1] = Math.max(0,data[(curPos)*4+1]-20);
+// 					data[(curPos)*4+2] = Math.max(0,data[(curPos)*4+2]-20);
+// 					data[(curPos)*4+3] = Math.max(0,data[(curPos)*4+3]-20);
+// 					break loop2;
+// 				} else {
+// 					continue;
+// 					// //data[(curPos)*4]   = 255; //Math.min(255,data[(curPos)*4]+100);
+// 					// data[(curPos)*4+1] = 255; //Math.min(255,data[(curPos)*4+1]+100);
+// 					// data[(curPos)*4+2] = 255;  //Math.min(255,data[(curPos)*4+2]+100);
+// 					// data[(curPos)*4+3] = 255; //Math.min(255,data[(curPos)*4+3]+100);
+// 					// continue loop2;
+// 				}
+// 			}
+// 		}
+// 	//		let curX =i%cW;
+// 	//		let curY =(i-curX)%cH;
+// 	//	       //data[i]=data[i];
+// 	//	       if (data[]>0) {
+// //
+// //	//	       }
+// //	//	   			data[i+1]=(data[i+1]+1)*(1+Math.random())%255;
+// //	//	   			data[i+2]=(data[i+2]+1)*(1+Math.random())%255;
+// //	//	   			data[i+3]=(data[i+3]+1)*(1+Math.random())%255;
+// //	//		
+// 	//	}
+// 		ctxBG.putImageData(imgData,0,0);
+// 	}
+
+	 // else {

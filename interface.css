@@ -1,0 +1,47 @@
+body {
+padding: 0px;
+margin:0px;
+font-family: Arial, Helvetica, sans-serif;
+line-height: 1.5;
+font-size: 14px; 
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+background-color: black;
+}       
+.field {
+	border:solid black 1px;
+	width:50px;
+	height:50px;
+	position:absolute;
+}
+canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.msg {
+	color:white;
+	text-align: center;
+	width: 100%;
+	margin-top: 10%;
+	font-size: 3em;
+}
+.but {
+	text-align: center;
+	position: relative;
+	margin:1em;
+	padding:1em;
+	font-size: 1.5em;
+	color:white;
+	text-shadow:0em 0.05em 0em silver, 0em 0em 0.2em white;
+	box-shadow:inset 0em 0em 5px 10px rgba(15,139,161,0.4);
+	
+}
+.but:hover {
+	box-shadow:inset 0em 0em 5px 10px rgba(15,139,161,0.4),0em 0em 2px 1px rgba(15,139,161,1),inset 0em 0em 2px 1px rgba(15,139,161,1);
+	/*background-color: rgba(150,150,150,0.2);*/
+}
