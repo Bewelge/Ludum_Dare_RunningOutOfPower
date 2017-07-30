@@ -39,8 +39,10 @@ function load() {
     earthImg.onload = function() {
       checkImagesToLoad();
     };
+    menuTicker = window.setInterval(menuTick,50);
 }
 function init() {
+	clearInterval(menuTicker);
 	mouseX = 0;
 	mouseY = 0;
 	moved = false;
@@ -238,9 +240,21 @@ var shapeMons = 5;
 var fuseList=[];
 var toShrink=[];
 var killList=[];
-
+var menu = true;
+var hotness=0;
+var coldness=0;
+var menuTicker=null;
+function menuTick() {
+	//console.log("menutick");
+	if(warnTicker) {
+		warnTicker++;
+		if(warnTicker>=warnTick) {
+			warnTicker=0;
+			$("#warnMsg").html("");
+		}
+	}
+}
 function tick() {
-
 	var now = window.performance.now(); // current time in ms
 
 	var deltaTime = now - lastTick; // amount of time elapsed since last tick
@@ -255,6 +269,7 @@ function tick() {
 
 	doneTicks = 0;
 
+	if(menu) {ticker=0;doneTicks=0;}
 
 	//  if (moved) {
 	//  		moved=false;
@@ -295,13 +310,13 @@ function createStartMenu() {
 
 
 let SettingBut = document.createElement("div");
-	SettingBut.innerHTML = "Start";	
+	SettingBut.innerHTML = "Settings";	
 	SettingBut.style.width = width*0.3 + "px";
 	SettingBut.style.height = height*0.1 + "px";
 	SettingBut.style.marginTop = height*0.3 + "px";
 	SettingBut.style.marginLeft = width*0.3 + "px";
 	SettingBut.style.fontSize = height*0.1 + "px";
-	// SettingBut.addEventListener("click",openSettings);
+	SettingBut.addEventListener("click",openSettings);
 	SettingBut.id = "Settings";
 	SettingBut.className = "but";
 
@@ -314,15 +329,22 @@ let HelpBut = document.createElement("div");
 	HelpBut.style.marginTop = height*0.3 + "px";
 	HelpBut.style.marginLeft = width*0.3 + "px";
 	HelpBut.style.fontSize = height*0.1 + "px";
-	// HelpBut.addEventListener("click",openHelp);
+	HelpBut.addEventListener("click",openHelp);
 	HelpBut.id = "Help";
 	HelpBut.className = "but";
 
 	cont.append(HelpBut);
 	return cont;
 }
+function openHelp() {
+	$("#help").css("display","block");
+}
+function openSettings() {
+	WarningMsg("Ain't Nobody got Time for that!</br> Read the Manual and Play already!");
+}
 function startGame(){
 	init();
+	menu=false;
 }
 function drawHUD() {
 	drawDays();
@@ -345,11 +367,15 @@ function drawTemp() {
 	lgr.addColorStop(Math.min(0.999,ratio+0.05),"rgba(50,50,155,0.8)");
 	lgr.addColorStop(1,"rgba(50,50,255,0.8)");
 	ctxBG.fillStyle=lgr;//"rgba(50,150,50,1)";
-	ctxBG.font = "25px Comic Sans";
+	ctxBG.font = "20px Sans Serif";
 	ctxBG.strokeStyle="rgba(250,250,250,1)";
-	ctxBG.fillRect(width-60,60,40,barH);
-	ctxBG.strokeRect(width-60,60,40,barH);
-	ctxBG.strokeText(earthTemperature+"C",width-100,60+barH/2);
+	ctxBG.fillRect(width-20-width*0.05,60,width*0.05,barH);
+	ctxBG.strokeRect(width-20-width*0.05,60,width*0.05,barH);
+	let tx = Math.floor(10*earthTemperature)/10+"°C";
+	let mTx= ctxBG.measureText(tx).width;
+	
+	ctxBG.fillStyle="rgba(250,250,250,1)";
+	ctxBG.fillText(tx,width-20-width*0.05+(width*0.05-mTx)/2,60+barH/2);
 }
 function drawHealth() {
 	ctxBG.fillStyle="rgba(150,50,50,1)";
@@ -362,16 +388,20 @@ function drawHealth() {
 	ctxBG.font = "25px Comic Sans";
 	let tx = health+"/"+maxHealth;
 	let mtx = ctxBG.measureText(tx).width;
-	ctxBG.strokeText(tx,bw-mtx/2,70);
+	ctxBG.fillStyle="rgba(250,250,250,1)";
+	ctxBG.fillText(tx,bw-mtx/2,58);
 }
 function drawEnergy() {
 	let barH = height-80;
-	ctxBG.fillStyle="rgba(50,150,50,1)";
+	ctxBG.fillStyle="rgba(50,150,50,0.5)";
 	ctxBG.font = "25px Comic Sans";
 	ctxBG.strokeStyle="rgba(50,100,50,1)";
 	ctxBG.fillRect(20,60+barH*(1-(Energy/maxEnergy)),100,barH*(Energy/maxEnergy));
 	ctxBG.strokeRect(20,60,100,barH);
-	ctxBG.strokeText(Energy+"/"+maxEnergy,20,60+barH/2);
+	let tx = Energy+"/"+maxEnergy;
+	let Mtx = ctxBG.measureText(tx).width;
+	ctxBG.fillStyle="rgba(250,250,250,1)";
+	ctxBG.fillText(tx,20+(100-Mtx)/2,60+barH/2);
 
 }
 function drawDays() {
@@ -404,7 +434,9 @@ function getColor(n, a) {
 	return hslToRgbString(h, s, l, a);
 
 }
-
+var sunPulse = 0;
+var sunPulseStop = 50;
+var sunPulseUp = true;
 function render(doneTicks) {
 	ctxBG.clearRect(0,0,width,height);
 
@@ -432,7 +464,12 @@ function render(doneTicks) {
 			thePlayer.pos.y - (sunHeight) * Math.sin(-0.5 * Math.PI + ang));
 		ctxBG.lineTo(thePlayer.pos.x - (sunHeight) * Math.cos(0.5 * Math.PI + ang),
 			thePlayer.pos.y - (sunHeight) * Math.sin(0.5 * Math.PI + ang));
-		ctxBG.fillStyle = "rgba(255,255,0,0.3)";
+		
+		ctxBG.fillStyle = "rgba("+  Math.min(255,((150+20*Math.floor(hotness)))-40*Math.floor(coldness))+","+
+									((150-50*Math.floor(hotness))-40*Math.floor(coldness))+","+
+									Math.min(255,(50+10*Math.floor(coldness)))+
+									",0.3)";
+		//console.log(ctxBG.fillStyle);
 		ctxBG.fill();
 		//ctxBG.stroke();
 		ctxBG.closePath();
@@ -460,15 +497,31 @@ function render(doneTicks) {
 		let newY = mouseY+((dist/diagLng)*earthHeight)*Math.sin(ang);
 		let rGr = ctxBG.createRadialGradient(newX,newY,0,newX,newY,2*earthHeight);
 		rGr.addColorStop(0,"blue");
-		rGr.addColorStop(1,"rgba(0,0,0,0)");
+		rGr.addColorStop(0.5,"rgba(0,0,0,1)");
+		rGr.addColorStop(1,"rgba(0,0,0,1)");
 		drawCircle(ctxBG, mouseX, mouseY, thePlayer.lv * earthHeight, rGr);
 
+
+		if (sunPulseUp) {
+			sunPulse++;
+			if(sunPulse>=sunPulseStop) {
+				sunPulseUp=false;
+			}
+
+		} else {
+			sunPulse--;
+			if(sunPulse<=0) {
+				sunPulseUp=true;
+			}
+		}
 
 		let rGr2 = ctxBG.createRadialGradient(thePlayer.pos.x, thePlayer.pos.y,0,thePlayer.pos.x, thePlayer.pos.y,2*sunHeight);
 		rGr2.addColorStop(0,"rgba(255,100,100,0.9)");
 		rGr2.addColorStop(1,"rgba(0,0,0,0)");
-		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight, "rgba(255,255,0,1)");
-		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight*1.1, "rgba(255,255,0,0.8)");
+		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight*0.9+sunPulse/10, "rgba(255,255,0,"+  1+")");
+		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight*1  +sunPulse/10, "rgba(255,255,0,"+0.4+")");
+		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight*1.1+sunPulse/10, "rgba(255,255,0,"+0.4+")");
+		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight*1.2+sunPulse/10, "rgba(255,255,0,"+0.4+")");
 		drawCircle(ctxBG, thePlayer.pos.x, thePlayer.pos.y, sunHeight, rGr2);
 
 		// ctxBG.beginPath();
@@ -504,7 +557,20 @@ function angle(p1x, p1y, p2x, p2y) {
 	return Math.atan2(p2y - p1y, p2x - p1x);
 
 }
+var warnTicker = 0;
+var warnTick = 40;
+function WarningMsg(txt) {
+	if (!endScreen) {
 
+		let msg = document.createElement("div");
+		msg.className= "msg";
+		msg.innerHTML= txt;
+		msg.style.position= "absolute";
+		msg.style.bottom = height*0.1+"px";
+		$("#warnMsg").html(msg);
+		warnTicker=1;
+	}
+}
 function gameOver(txt){
 	endScreen=true;
 
@@ -514,6 +580,7 @@ function gameOver(txt){
 	cont.style.top = "0px";
 	cont.style.width ="100%"; 
 	cont.style.height="100%";
+	$("#warnMsg").html("");
 
 	let StartBut = document.createElement("div");
 	StartBut.innerHTML = "Try Again!";
@@ -535,10 +602,20 @@ function gameOver(txt){
 
 }
 function calcTemp() {
-	if (earthTemperature>40) {
-		gameOver("Your Earth Burned!")
-	} else if (earthTemperature<-30) {
-		gameOver("Your Earth Froze!")
+	if (earthTemperature>25) {
+		if (earthTemperature>70) {
+			gameOver("Your Earth Burned!")
+		} else if (earthTemperature > 50) {
+			WarningMsg("Earth running Hot!")
+		} 
+		
+	} else {
+		if (earthTemperature<-30) {
+			gameOver("Your Earth Froze!")
+		} else if (earthTemperature<-10) {
+			gameOver("Earth becoming too Cold!")
+		}
+		
 	}
 }
 function movePlayer() {
@@ -553,13 +630,20 @@ function calcForcePlayer() {
 	thePlayer.mot.y *= 0.999;
 	let mouseDist = Distance(thePlayer.pos.x, thePlayer.pos.y, mouseX, mouseY);
 	let distDiff = mouseDist - Math.min(bw,bh);
-	if (Math.abs(distDiff)>50) {
+	if (Math.abs(distDiff)>100) {
 		if (distDiff<0) {
 			earthTemperature += 0.01*Math.log(Math.abs(distDiff));
+			hotness=Math.log(Math.abs(distDiff));
+			coldness=0;
 			
 		} else if (distDiff>0) {
 			earthTemperature -= 0.01*Math.log(Math.abs(distDiff));
+			hotness=0;
+			coldness=Math.log(Math.abs(distDiff));;
 		}
+	} else {
+		hotness=0;
+		coldness=0;
 	}
 	let mouseAngle = angle(thePlayer.pos.x, thePlayer.pos.y, mouseX, mouseY);
 	//console.log(mouseAngle);
@@ -677,36 +761,49 @@ function drawCircle(contx, x, y, rad, style) {
 
 
 function step() {
-	if (endScreen) {
-		return
-	}
-	monsTicker++;
-	if (monsTicker > monsCD) {
-		monsTicker = 0;
-		let ang = Math.floor((Math.random() * 360)) * Math.PI / 180
-		let x = width / 2 + Math.max(width, height) * Math.cos(ang);
-		let y = height / 2 + Math.max(width, height) * Math.sin(ang);
-		createEnemy(curLevel,x,y,0,0,ang);
-		lvlTicker++;
-		if (lvlTicker>=lvlTick) {
-			lvlTicker=0;
-			curLevel++;
+	if(warnTicker) {
+		warnTicker++;
+		if(warnTicker>=warnTick) {
+			warnTicker=0;
+			$("#warnMsg").html("");
 		}
+	}
+	if (!endScreen) {
+		
+		monsTicker++;
+		if (monsTicker > monsCD) {
+			monsTicker = 0;
+			let ang = Math.floor((Math.random() * 360)) * Math.PI / 180
+			let x = width / 2 + Math.max(width, height) * Math.cos(ang);
+			let y = height / 2 + Math.max(width, height) * Math.sin(ang);
+			createEnemy(curLevel,x,y,0,0,ang);
+			lvlTicker++;
+			if (lvlTicker>=lvlTick) {
+				lvlTicker=0;
+				curLevel++;
+			}
 
-		//sunHeight--;
-	}
-	EnergyTicker++;
-	if (EnergyTicker>EnergyTick) {
-		EnergyTicker=0;
-		Energy-=1;
-	}
-	if (thePlayer) {
+			//sunHeight--;
+		}
+		EnergyTicker++;
+		if (EnergyTicker>EnergyTick) {
+			EnergyTicker=0;
+			Energy-=2;
+			if (Energy < 0 ) {
+				gameOver("You ran out of Energy! :(")
+			} else 
+			if (Energy < 15) {
+				WarningMsg("Low Energy!")
+			} 
+		}
+		if (thePlayer) {
 
-		movePlayer();
+			movePlayer();
+		}
+		moveEnemies();
+		checkColls();
+		killAndFuse();
 	}
-	moveEnemies();
-	checkColls();
-	killAndFuse();
 }
 
 function stepWater() {
@@ -949,7 +1046,7 @@ function killAndFuse() {
 		let yAvg = (Enemies[ind1].pos.y+Enemies[ind2].pos.y) / 2;
 		let xMotAvg = (Enemies[ind1].mot.x+Enemies[ind2].mot.x) / 2;
 		let yMotAvg = (Enemies[ind1].mot.y+Enemies[ind2].mot.y) / 2;
-		console.log(xAvg+";"+yAvg+";"+xMotAvg+";"+yMotAvg);
+		//console.log(xAvg+";"+yAvg+";"+xMotAvg+";"+yMotAvg);
 		toSpwn.push([Enemies[key].lv+1,xAvg,yAvg,xMotAvg,yMotAvg]);
 	}
 	for (let kur in killList) {
